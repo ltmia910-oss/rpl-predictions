@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>РПЛ Прогнозы</title>
+    <title>Таблица прогнозов РПЛ</title>
 
-    <!-- ===== ПОДКЛЮЧЕНИЕ FIREBASE ===== -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
     </script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js">
@@ -31,57 +31,39 @@
             padding: 40px 20px;
         }
         .container {
-            max-width: 500px;
+            max-width: 420px;
             width: 100%;
             background: #11161f;
             border-radius: 24px;
-            padding: 40px 32px;
+            padding: 48px 32px;
             text-align: center;
             border: 1px solid #1a2230;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
         .emoji-big {
             font-size: 56px;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
         h1 {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
             color: #f0b429;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
         .subtitle {
             color: #8aa0b2;
             font-size: 14px;
-            margin-bottom: 24px;
-        }
-        .user-card {
-            background: #1a2230;
-            border-radius: 14px;
-            padding: 20px;
-            margin: 16px 0 20px;
-        }
-        .user-card .name {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .user-card .email {
-            color: #8aa0b2;
-            font-size: 14px;
-            word-break: break-all;
-        }
-        .user-avatar {
-            font-size: 44px;
-            margin-bottom: 6px;
+            margin-bottom: 32px;
         }
         .btn {
-            padding: 12px 32px;
+            padding: 14px 40px;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            width: 100%;
         }
         .btn-google {
             background: #4285f4;
@@ -89,111 +71,75 @@
         }
         .btn-google:hover {
             background: #357ae8;
-            transform: scale(1.03);
+            transform: scale(1.02);
         }
-        .btn-primary {
-            background: #f0b429;
-            color: #0b0e14;
+        .btn-google:active {
+            transform: scale(0.98);
         }
-        .btn-primary:hover {
-            background: #dba020;
-            transform: scale(1.03);
+        .hidden {
+            display: none !important;
+        }
+
+        /* После входа показываем приветствие */
+        .welcome {
+            margin-top: 20px;
+            padding: 16px;
+            background: #1a2230;
+            border-radius: 12px;
+        }
+        .welcome .name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .welcome .email {
+            color: #8aa0b2;
+            font-size: 14px;
+        }
+        .flex-center {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .btn-logout {
             background: transparent;
             color: #8aa0b2;
             border: 1px solid #2d3748;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
         }
         .btn-logout:hover {
             border-color: #ff5d5d;
             color: #ff5d5d;
         }
-        .btn-success {
-            background: #2d8f4e;
-            color: white;
-        }
-        .btn-success:hover {
-            background: #237a41;
-        }
-        .hidden {
-            display: none !important;
-        }
-        .status {
-            margin-top: 16px;
-            padding: 10px 16px;
+        .btn-primary {
+            background: #f0b429;
+            color: #0b0e14;
+            padding: 10px 20px;
             border-radius: 8px;
             font-size: 14px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
         }
-        .status-online {
-            background: #1a3a2a;
-            color: #3cc36b;
-        }
-        .status-offline {
-            background: #3a1a1a;
-            color: #ff5d5d;
-        }
-        .status-connecting {
-            background: #3a2a1a;
-            color: #ffb020;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-        .divider {
-            border-top: 1px solid #1a2230;
-            margin: 16px 0 20px;
-        }
-        .features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px 12px;
-            margin: 12px 0 16px;
-            text-align: left;
-            font-size: 14px;
-            color: #8aa0b2;
-        }
-        .features li {
-            list-style: none;
-            padding: 4px 0;
-        }
-        .features li::before {
-            content: "✅ ";
-        }
-        .footer {
-            margin-top: 16px;
-            color: #4a5a6a;
-            font-size: 12px;
-        }
-        .flex-center {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .mt-8 {
-            margin-top: 8px;
+        .btn-primary:hover {
+            background: #dba020;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
+        <!-- ===== ЭМОДЗИ И ЗАГОЛОВОК ===== -->
         <div class="emoji-big">⚽</div>
-        <h1>РПЛ Прогнозы</h1>
-        <p class="subtitle">Мультиплеерная таблица прогнозов</p>
+        <h1>Таблица прогнозов РПЛ</h1>
+        <p class="subtitle">Войдите, чтобы начать</p>
 
         <!-- ===== НЕ АВТОРИЗОВАН ===== -->
         <div id="notLoggedIn">
-            <p style="color:#8aa0b2; margin-bottom:16px;">
-                Войдите, чтобы начать
-            </p>
             <button class="btn btn-google" id="loginBtn">
                 🚀 Войти через Google
             </button>
@@ -201,44 +147,26 @@
 
         <!-- ===== АВТОРИЗОВАН ===== -->
         <div id="loggedIn" class="hidden">
-            <div class="user-card">
-                <div class="user-avatar" id="userAvatar">👤</div>
+            <div class="welcome">
+                <div style="font-size:40px; margin-bottom:4px;">👤</div>
                 <div class="name" id="userName">Имя</div>
                 <div class="email" id="userEmail">email@example.com</div>
             </div>
 
             <div class="flex-center">
-                <button class="btn btn-primary" id="goToAppBtn">
+                <button class="btn-primary" id="goToAppBtn">
                     📊 Таблица прогнозов
                 </button>
-                <button class="btn btn-logout" id="logoutBtn">
+                <button class="btn-logout" id="logoutBtn">
                     Выйти
                 </button>
             </div>
-        </div>
-
-        <!-- ===== СТАТУС ===== -->
-        <div id="status" class="status status-connecting">
-            ⏳ Подключение к Firebase...
-        </div>
-
-        <div class="divider"></div>
-
-        <ul class="features">
-            <li>Реальное время</li>
-            <li>Google-вход</li>
-            <li>Общие данные</li>
-            <li>Рейтинг</li>
-        </ul>
-
-        <div class="footer">
-            🔒 Данные защищены • Firebase
         </div>
     </div>
 
     <script>
         // ==========================================================
-        // ⚠️ ТВОЙ КОНФИГ FIREBASE ⚠️
+        // КОНФИГ FIREBASE
         // ==========================================================
         const firebaseConfig = {
             apiKey: "AIzaSyCXBoQRgeDTnU6HYGNpvnSL9Ct8B8uMhn0",
@@ -250,14 +178,13 @@
         };
 
         // ==========================================================
-        // ИНИЦИАЛИЗАЦИЯ FIREBASE
+        // ИНИЦИАЛИЗАЦИЯ
         // ==========================================================
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const db = firebase.database();
 
         // ==========================================================
-        // DOM-ЭЛЕМЕНТЫ
+        // DOM
         // ==========================================================
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -266,11 +193,9 @@
         const loggedIn = document.getElementById('loggedIn');
         const userName = document.getElementById('userName');
         const userEmail = document.getElementById('userEmail');
-        const userAvatar = document.getElementById('userAvatar');
-        const statusEl = document.getElementById('status');
 
         // ==========================================================
-        // ФУНКЦИЯ ОБНОВЛЕНИЯ UI
+        // UI
         // ==========================================================
         function updateUI(user) {
             if (user) {
@@ -278,65 +203,33 @@
                 loggedIn.classList.remove('hidden');
                 userName.textContent = user.displayName || 'Пользователь';
                 userEmail.textContent = user.email || '';
-                userAvatar.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👤';
-                setStatus('online', '✅ Вы вошли');
             } else {
                 notLoggedIn.classList.remove('hidden');
                 loggedIn.classList.add('hidden');
-                setStatus('offline', '❌ Не авторизован');
             }
         }
 
-        function setStatus(type, text) {
-            statusEl.textContent = text;
-            statusEl.className = 'status';
-            if (type === 'online') {
-                statusEl.classList.add('status-online');
-            } else if (type === 'offline') {
-                statusEl.classList.add('status-offline');
-            } else {
-                statusEl.classList.add('status-connecting');
-            }
-        }
-
-        // ==========================================================
-        // АВТОРИЗАЦИЯ
-        // ==========================================================
         auth.onAuthStateChanged(user => {
             updateUI(user);
         });
 
+        // ==========================================================
+        // СОБЫТИЯ
+        // ==========================================================
         loginBtn.addEventListener('click', () => {
             const provider = new firebase.auth.GoogleAuthProvider();
             auth.signInWithPopup(provider)
-                .then(() => console.log('✅ Вход выполнен'))
                 .catch(error => {
-                    console.error('❌ Ошибка:', error);
                     alert('Ошибка входа: ' + error.message);
                 });
         });
 
         logoutBtn.addEventListener('click', () => {
-            auth.signOut().then(() => console.log('✅ Выход выполнен'));
+            auth.signOut();
         });
 
-        // ==========================================================
-        // ПЕРЕХОД В ТАБЛИЦУ
-        // ==========================================================
         goToAppBtn.addEventListener('click', () => {
-            alert('🚧 Полная таблица с прогнозами будет здесь!\n\nСейчас нужно:\n1. Включить Google-авторизацию\n2. Создать Realtime Database');
-        });
-
-        // ==========================================================
-        // ПРОВЕРКА ПОДКЛЮЧЕНИЯ
-        // ==========================================================
-        const connectedRef = firebase.database().ref('.info/connected');
-        connectedRef.on('value', (snap) => {
-            if (snap.val() === true) {
-                console.log('✅ Подключено к Firebase Database');
-            } else {
-                console.log('❌ Нет подключения к Firebase Database');
-            }
+            alert('🚧 Таблица прогнозов появится позже!');
         });
 
         console.log('🔥 Firebase инициализирован!');
