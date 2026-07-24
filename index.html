@@ -40,25 +40,24 @@
             border: 1px solid #1a2230;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
-        h1 {
+        .title {
             font-size: 32px;
             font-weight: 800;
             margin-bottom: 36px;
             letter-spacing: 1px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
         }
-        .russian-flag {
-            background: linear-gradient(
-                to bottom,
-                #ffffff 0%,
-                #ffffff 33%,
-                #0039a6 33%,
-                #0039a6 66%,
-                #d52b1e 66%,
-                #d52b1e 100%
-            );
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .title .w1 {
+            color: #ffffff;
+        }
+        .title .w2 {
+            color: #0039a6;
+        }
+        .title .w3 {
+            color: #d52b1e;
         }
         .btn {
             padding: 14px 40px;
@@ -154,8 +153,9 @@
             .container {
                 padding: 32px 20px;
             }
-            h1 {
+            .title {
                 font-size: 24px;
+                gap: 4px;
             }
             .btn {
                 font-size: 14px;
@@ -167,8 +167,12 @@
 <body>
 
     <div class="container">
-        <!-- ===== ЗАГОЛОВОК В ЦВЕТАХ ФЛАГА ===== -->
-        <h1 class="russian-flag">Таблица прогнозов РПЛ</h1>
+        <!-- ===== ЗАГОЛОВОК: КАЖДОЕ СЛОВО СВОИМ ЦВЕТОМ ===== -->
+        <div class="title">
+            <span class="w1">Таблица</span>
+            <span class="w2">прогнозов</span>
+            <span class="w3">РПЛ</span>
+        </div>
 
         <!-- ===== НЕ АВТОРИЗОВАН ===== -->
         <div id="notLoggedIn">
