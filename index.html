@@ -14,7 +14,6 @@
 </script>
 
 <style>
-  /* ===== ОСНОВНЫЕ СТИЛИ ===== */
   :root {
     --bg:#0b0e13;
     --card:#11161f;
@@ -56,7 +55,6 @@
     gap:16px;
   }
 
-  /* ===== СТРАНИЦА ВХОДА ===== */
   .login-container {
     display: flex;
     flex-direction: column;
@@ -125,7 +123,6 @@
   }
   .hidden { display: none !important; }
 
-  /* ===== ШАПКА ТАБЛИЦЫ ===== */
   header {
     padding: 12px 20px;
     border-bottom: 1px solid var(--grid);
@@ -177,7 +174,6 @@
     color: var(--fg);
   }
 
-  /* ===== ТАБЛИЦА ===== */
   .container { padding: 0 16px 24px; max-width: 1400px; margin: auto; width: 100%; }
   .controls {
     display: flex;
@@ -255,7 +251,6 @@
   .rating table { border-radius: 12px; overflow: hidden; }
   .subtle { color: var(--muted); }
 
-  /* ===== МОДАЛКИ ===== */
   dialog {
     border: none;
     border-radius: 16px;
@@ -337,9 +332,7 @@
 </head>
 <body>
 
-<!-- ============================================================ -->
-<!-- СТРАНИЦА ВХОДА (показывается, если пользователь не авторизован) -->
-<!-- ============================================================ -->
+<!-- СТРАНИЦА ВХОДА -->
 <div id="loginPage" class="login-container">
   <div class="login-box">
     <div class="title">
@@ -354,12 +347,8 @@
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- ТАБЛИЦА ПРОГНОЗОВ (показывается, если пользователь авторизован) -->
-<!-- ============================================================ -->
+<!-- ТАБЛИЦА ПРОГНОЗОВ -->
 <div id="appPage" class="hidden">
-
-  <!-- ШАПКА -->
   <header>
     <h1>Таблица прогнозов РПЛ 2026-2027</h1>
     <div class="user-info" id="userInfo">
@@ -370,7 +359,6 @@
     <button id="themeToggle" class="theme-toggle">🌓</button>
   </header>
 
-  <!-- ОСНОВНОЙ КОНТЕНТ -->
   <div class="container">
     <div class="controls">
       <label>Тур:
@@ -406,7 +394,7 @@
     </section>
   </div>
 
-  <!-- ===== МОДАЛКИ ===== -->
+  <!-- МОДАЛКИ -->
   <div id="popover" class="popover">
     <button id="actFact">Внести результат</button>
     <button id="actPred">Дать прогноз</button>
@@ -457,12 +445,9 @@
       </div>
       <div class="modal-bd">
         <div class="field">
-          <label>Текстовое расписание (по одной игре в строке)</label>
+          <label>Текстовое расписание</label>
           <textarea id="scheduleText" rows="14" spellcheck="false"></textarea>
-          <div class="note">
-            Формат: <code>тур;дом;гость[;дата][;время]</code><br/>
-            Пустые строки и строки с <code>#</code> игнорируются.
-          </div>
+          <div class="note">Формат: <code>тур;дом;гость[;дата][;время]</code></div>
         </div>
       </div>
       <div class="modal-ft">
@@ -515,9 +500,7 @@
 </div>
 
 <script>
-// ================================================================
 // КОНФИГ FIREBASE
-// ================================================================
 const firebaseConfig = {
   apiKey: "AIzaSyCXBoQRgeDTnU6HYGNpvnSL9Ct8B8uMhn0",
   authDomain: "rpl-predictions.firebaseapp.com",
@@ -531,9 +514,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-// ================================================================
-// DOM-ЭЛЕМЕНТЫ
-// ================================================================
+// ПЕРЕКЛЮЧЕНИЕ МЕЖДУ СТРАНИЦАМИ
 const loginPage = document.getElementById('loginPage');
 const appPage = document.getElementById('appPage');
 const loginBtn = document.getElementById('loginBtn');
@@ -541,48 +522,32 @@ const logoutBtn = document.getElementById('logoutBtn');
 const userName = document.getElementById('userName');
 const userAvatar = document.getElementById('userAvatar');
 
-// ================================================================
-// АВТОРИЗАЦИЯ — ПОКАЗЫВАЕМ НУЖНУЮ СТРАНИЦУ
-// ================================================================
 function showPage(user) {
   if (user) {
     loginPage.classList.add('hidden');
     appPage.classList.remove('hidden');
     userName.textContent = user.displayName || 'Пользователь';
     userAvatar.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👤';
-    // Загружаем данные таблицы только после входа
-    if (typeof loadFromFirebase === 'function') {
-      loadFromFirebase();
-    }
+    if (typeof loadFromFirebase === 'function') loadFromFirebase();
   } else {
     loginPage.classList.remove('hidden');
     appPage.classList.add('hidden');
   }
 }
 
-auth.onAuthStateChanged(user => {
-  showPage(user);
-});
+auth.onAuthStateChanged(user => showPage(user));
 
 loginBtn.addEventListener('click', () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).catch(err => {
-    alert('Ошибка входа: ' + err.message);
-  });
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .catch(err => alert('Ошибка входа: ' + err.message));
 });
 
-logoutBtn.addEventListener('click', () => {
-  auth.signOut();
-});
+logoutBtn.addEventListener('click', () => auth.signOut());
 
 // ================================================================
-// ОСТАЛЬНАЯ ЛОГИКА (таблица, рейтинг, модалки и т.д.)
-// Запускается только после загрузки Firebase и авторизации
+// ВСЯ ЛОГИКА ТАБЛИЦЫ
 // ================================================================
 (function() {
-  // ==============================================================
-  // СОСТОЯНИЕ
-  // ==============================================================
   const state = {
     results: {},
     schedule: {},
@@ -590,12 +555,8 @@ logoutBtn.addEventListener('click', () => {
     predictors: ["Иван", "Валентин"],
     theme: "dark"
   };
-
   let isLoading = false;
 
-  // ==============================================================
-  // ДОМ-ЭЛЕМЕНТЫ
-  // ==============================================================
   const byId = id => document.getElementById(id);
   const matrixEl = byId("matrix");
   const ratingTbody = document.querySelector("#rating tbody");
@@ -626,12 +587,8 @@ logoutBtn.addEventListener('click', () => {
   const themeToggle = byId("themeToggle");
   const factBlock = byId("factBlock");
   const predBlock = byId("predBlock");
-
   let currentMatch = null;
 
-  // ==============================================================
-  // УТИЛИТЫ
-  // ==============================================================
   function keyOf(home, away) { return home + "|" + away; }
   function ensureMatch(key) {
     if (!state.results[key]) state.results[key] = { predictions: {} };
@@ -661,9 +618,6 @@ logoutBtn.addEventListener('click', () => {
   }
   function phInt(v) { return Number.isFinite(v) ? v : 0; }
 
-  // ==============================================================
-  // МАКСИМАЛЬНЫЙ ТУР
-  // ==============================================================
   function maxTour() {
     const vals = Object.values(state.schedule).map(x => x.tour).filter(x => typeof x === "number");
     return vals.length ? Math.max(...vals) : 30;
@@ -678,9 +632,6 @@ logoutBtn.addEventListener('click', () => {
     tourFilter.value = cur || "";
   }
 
-  // ==============================================================
-  // ПОЗИЦИОНИРОВАНИЕ ПОДСКАЗКИ
-  // ==============================================================
   function positionTooltip(x, y) {
     const margin = 10;
     const w = 220, h = 40;
@@ -690,9 +641,6 @@ logoutBtn.addEventListener('click', () => {
     tooltip.style.top = top + "px";
   }
 
-  // ==============================================================
-  // РЕНДЕР МАТРИЦЫ
-  // ==============================================================
   function renderMatrix() {
     const TEAMS = state.teams;
     const selectedTour = tourFilter.value ? Number(tourFilter.value) : null;
@@ -781,9 +729,6 @@ logoutBtn.addEventListener('click', () => {
     matrixEl.appendChild(tbody);
   }
 
-  // ==============================================================
-  // РЕНДЕР РЕЙТИНГА
-  // ==============================================================
   function renderRating() {
     const stats = {};
     state.predictors.forEach(n => stats[n] = { exact: 0, outcome: 0, miss: 0, points: 0 });
@@ -816,16 +761,10 @@ logoutBtn.addEventListener('click', () => {
     ratingTbody.innerHTML = rows || `<tr><td colspan="5" class="subtle">Пока нет прогнозов</td></tr>`;
   }
 
-  // ==============================================================
-  // ОБНОВЛЕНИЕ СПИСКА ПРОГНОЗИСТОВ
-  // ==============================================================
   function updatePredictorSelect() {
     predictorSel.innerHTML = state.predictors.map(n => `<option>${n}</option>`).join("");
   }
 
-  // ==============================================================
-  // ОБНОВЛЕНИЕ ВСЕГО UI
-  // ==============================================================
   function refreshAll() {
     rebuildTourFilter();
     renderMatrix();
@@ -833,9 +772,6 @@ logoutBtn.addEventListener('click', () => {
     updatePredictorSelect();
   }
 
-  // ==============================================================
-  // СОХРАНЕНИЕ В FIREBASE
-  // ==============================================================
   function saveToFirebase() {
     if (isLoading) return;
     const dataToSave = {
@@ -849,9 +785,6 @@ logoutBtn.addEventListener('click', () => {
     });
   }
 
-  // ==============================================================
-  // ЗАГРУЗКА ИЗ FIREBASE
-  // ==============================================================
   function loadFromFirebase() {
     isLoading = true;
     db.ref("rpl-data").on("value", snap => {
@@ -862,4 +795,366 @@ logoutBtn.addEventListener('click', () => {
         state.teams = data.teams || [];
         state.predictors = data.predictors || ["Иван", "Валентин"];
         if (state.teams.length === 0) {
-          state.teams = ["Зенит", "Спартак М", "Ц
+          state.teams = ["Зенит", "Спартак М", "ЦСКА", "Динамо М", "Локомотив", "Краснодар", "Рубин", "Ростов", "Ахмат", "Крылья Советов", "Оренбург", "Акрон", "Факел", "Балтика", "Динамо Мх", "Родина"];
+        }
+      } else {
+        state.teams = ["Зенит", "Спартак М", "ЦСКА", "Динамо М", "Локомотив", "Краснодар", "Рубин", "Ростов", "Ахмат", "Крылья Советов", "Оренбург", "Акрон", "Факел", "Балтика", "Динамо Мх", "Родина"];
+        state.predictors = ["Иван", "Валентин"];
+        state.results = {};
+        state.schedule = {};
+        saveToFirebase();
+      }
+      isLoading = false;
+      refreshAll();
+    });
+  }
+
+  function openPopover(x, y, match) {
+    currentMatch = match;
+    popover.style.left = Math.min(x, window.innerWidth - 220) + "px";
+    popover.style.top = Math.min(y, window.innerHeight - 120) + "px";
+    popover.style.display = "flex";
+  }
+
+  function closePopover() {
+    popover.style.display = "none";
+  }
+
+  actFact.addEventListener("click", () => {
+    closePopover();
+    openEditor(currentMatch, { mode: "fact" });
+  });
+
+  actPred.addEventListener("click", () => {
+    closePopover();
+    openEditor(currentMatch, { mode: "pred" });
+  });
+
+  document.addEventListener("click", e => {
+    if (popover.style.display === "flex" && !popover.contains(e.target)) {
+      if (!e.target.closest("td.cell")) closePopover();
+    }
+  });
+
+  function openEditor({ home, away, key }, { mode } = {}) {
+    const rec = ensureMatch(key);
+    matchTitle.textContent = home + " — " + away;
+    factHome.value = rec.actual?.h ?? "";
+    factAway.value = rec.actual?.a ?? "";
+    predictorSel.value = state.predictors[0] || "";
+    predHome.value = rec.predictions?.[state.predictors[0]]?.h ?? "";
+    predAway.value = rec.predictions?.[state.predictors[0]]?.a ?? "";
+
+    if (mode === "fact") { factBlock.style.display = "block"; predBlock.style.display = "none"; }
+    else if (mode === "pred") { factBlock.style.display = "none"; predBlock.style.display = "grid"; }
+    else { factBlock.style.display = "block"; predBlock.style.display = "grid"; }
+
+    editor.showModal();
+    if (mode === "pred") predHome.focus();
+    else factHome.focus();
+  }
+
+  byId("saveFact").addEventListener("click", () => {
+    if (!currentMatch) return;
+    const rec = ensureMatch(currentMatch.key);
+    const h = factHome.value === "" ? null : Number(factHome.value);
+    const a = factAway.value === "" ? null : Number(factAway.value);
+    if (h == null || a == null) { delete rec.actual; } else { rec.actual = { h, a }; }
+    editor.close();
+    saveToFirebase();
+    refreshAll();
+  });
+
+  predictorSel.addEventListener("change", () => {
+    if (!currentMatch) return;
+    const rec = ensureMatch(currentMatch.key);
+    const name = predictorSel.value;
+    predHome.value = rec.predictions?.[name]?.h ?? "";
+    predAway.value = rec.predictions?.[name]?.a ?? "";
+  });
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    if (!currentMatch) return;
+    const rec = ensureMatch(currentMatch.key);
+    const name = predictorSel.value;
+    const h = predHome.value === "" ? null : Number(predHome.value);
+    const a = predAway.value === "" ? null : Number(predAway.value);
+    if (h == null || a == null) {
+      if (rec.predictions[name]) delete rec.predictions[name];
+    } else {
+      rec.predictions[name] = { h: phInt(h), a: phInt(a) };
+    }
+    editor.close();
+    saveToFirebase();
+    refreshAll();
+  });
+
+  editor.addEventListener("close", () => { currentMatch = null; });
+
+  function scheduleToText() {
+    const entries = Object.entries(state.schedule).map(([k, info]) => ({ k, info }));
+    entries.sort((a, b) => (a.info.tour ?? 0) - (b.info.tour ?? 0));
+    return entries.map(e => {
+      const [h, a] = e.k.split("|");
+      const d = e.info.date ? ";" + e.info.date : "";
+      const t = e.info.time ? ";" + e.info.time : "";
+      return (e.info.tour ?? "") + ";" + h + ";" + a + d + t;
+    }).join("\n");
+  }
+
+  function normalizeDate(s) {
+    s = s.trim();
+    if (!s) return "";
+    const m = s.match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?$/);
+    if (!m) return "";
+    const dd = m[1].padStart(2, "0");
+    const mm = m[2].padStart(2, "0");
+    const yyyy = m[3];
+    return yyyy ? dd + "." + mm + "." + yyyy : dd + "." + mm;
+  }
+
+  function normalizeTime(s) {
+    s = s.trim();
+    if (!s) return "";
+    const m = s.match(/^(\d{1,2}):(\d{2})$/);
+    if (!m) return "";
+    return m[1].padStart(2, "0") + ":" + m[2];
+  }
+
+  function parseScheduleText(text) {
+    const lines = text.split(/\r?\n/);
+    const mapping = {};
+    const errors = [];
+    const localTeams = new Set();
+
+    lines.forEach((raw, idx) => {
+      const s = raw.trim();
+      if (!s || s.startsWith("#")) return;
+
+      let tour, home, away, date = "", time = "";
+
+      let m = s.match(/^\s*(\d{1,2})\s*[\;\,\|]\s*([^;\|,]+)\s*[\;\,\|]\s*([^;\|,]+)(?:\s*[\;\,\|]\s*([^;\|,]+))?(?:\s*[\;\,\|]\s*([^;\|,]+))?\s*$/i);
+      if (m) {
+        tour = Number(m[1]);
+        home = m[2].trim();
+        away = m[3].trim();
+        date = m[4] ? normalizeDate(m[4]) : "";
+        time = m[5] ? normalizeTime(m[5]) : "";
+      } else {
+        m = s.match(/^\s*(\d{1,2}\.\d{1,2}(?:\.\d{4})?)?(?:\s+(\d{1,2}:\d{2}))?\s*тур\s*(\d{1,2})\s*[:\-]\s*([^-\:]+)\s*[-–]\s*([^-\:]+)\s*$/i);
+        if (m) {
+          date = m[1] ? normalizeDate(m[1]) : "";
+          time = m[2] ? normalizeTime(m[2]) : "";
+          tour = Number(m[3]);
+          home = m[4].trim();
+          away = m[5].trim();
+        }
+      }
+
+      if (!tour || !home || !away) { errors.push("Строка " + (idx + 1) + ": не удалось распознать"); return; }
+      if (home === away) { errors.push("Строка " + (idx + 1) + ": команда играет сама с собой"); return; }
+
+      const key = keyOf(home, away);
+      mapping[key] = { tour, date: date || undefined, time: time || undefined };
+      localTeams.add(home);
+      localTeams.add(away);
+    });
+
+    const newTeams = Array.from(localTeams);
+    if (newTeams.length === 0) errors.push("В расписании не найдено ни одной команды.");
+
+    return { mapping, errors, newTeams };
+  }
+
+  byId("editSchedule").addEventListener("click", () => {
+    scheduleText.value = scheduleToText();
+    scheduleDlg.showModal();
+    scheduleText.focus();
+  });
+
+  scheduleForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const { mapping, errors, newTeams } = parseScheduleText(scheduleText.value);
+    if (errors.length) {
+      alert("Исправьте ошибки:\n\n" + errors.join("\n"));
+      return;
+    }
+    state.schedule = mapping;
+    state.teams = newTeams;
+    Object.keys(state.results).forEach(k => {
+      const [h, a] = k.split("|");
+      if (!state.teams.includes(h) || !state.teams.includes(a)) delete state.results[k];
+    });
+    scheduleDlg.close();
+    saveToFirebase();
+    refreshAll();
+  });
+
+  tourFilter.addEventListener("change", () => renderMatrix());
+
+  function teamsToText() { return state.teams.join("\n"); }
+
+  function parseTeamsText(text) {
+    const arr = text.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const uniq = Array.from(new Set(arr));
+    const errors = [];
+    if (uniq.length < 2) errors.push("Нужно минимум две команды.");
+    return { teams: uniq, errors };
+  }
+
+  byId("editTeams").addEventListener("click", () => {
+    teamsText.value = teamsToText();
+    teamsDlg.showModal();
+    teamsText.focus();
+  });
+
+  teamsForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const { teams, errors } = parseTeamsText(teamsText.value);
+    if (errors.length) { alert(errors.join("\n")); return; }
+    state.teams = teams;
+    Object.keys(state.schedule).forEach(k => {
+      const [h, a] = k.split("|");
+      if (!teams.includes(h) || !teams.includes(a)) delete state.schedule[k];
+    });
+    Object.keys(state.results).forEach(k => {
+      const [h, a] = k.split("|");
+      if (!teams.includes(h) || !teams.includes(a)) delete state.results[k];
+    });
+    teamsDlg.close();
+    saveToFirebase();
+    refreshAll();
+  });
+
+  function renderPredictorsList() {
+    if (state.predictors.length === 0) {
+      predictorsList.innerHTML = '<div class="empty-list">Нет прогнозистов</div>';
+      return;
+    }
+
+    predictorsList.innerHTML = state.predictors.map((name, index) => {
+      return `
+        <div class="predictor-item" data-index="${index}">
+          <span>${name}</span>
+          <div class="predictor-actions">
+            <button type="button" class="mutebtn edit-predictor" title="Редактировать">✏️</button>
+            <button type="button" class="mutebtn danger remove-predictor" title="Удалить">🗑️</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    predictorsList.querySelectorAll('.edit-predictor').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const item = btn.closest('.predictor-item');
+        const index = parseInt(item.dataset.index);
+        const oldName = state.predictors[index];
+        const newName = prompt('Введите новое имя прогнозиста:', oldName);
+        if (newName && newName.trim() && newName.trim() !== oldName) {
+          const trimmedName = newName.trim();
+          if (state.predictors.includes(trimmedName)) {
+            alert('Прогнозист с таким именем уже существует!');
+            return;
+          }
+          Object.values(state.results).forEach(rec => {
+            if (rec.predictions && rec.predictions[oldName]) {
+              rec.predictions[trimmedName] = rec.predictions[oldName];
+              delete rec.predictions[oldName];
+            }
+          });
+          state.predictors[index] = trimmedName;
+          renderPredictorsList();
+          saveToFirebase();
+          refreshAll();
+        }
+      });
+    });
+
+    predictorsList.querySelectorAll('.remove-predictor').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const item = btn.closest('.predictor-item');
+        const index = parseInt(item.dataset.index);
+        const name = state.predictors[index];
+        if (confirm(`Удалить прогнозиста "${name}"?\nВсе его прогнозы будут удалены.`)) {
+          Object.values(state.results).forEach(rec => {
+            if (rec.predictions && rec.predictions[name]) {
+              delete rec.predictions[name];
+            }
+          });
+          state.predictors.splice(index, 1);
+          renderPredictorsList();
+          saveToFirebase();
+          refreshAll();
+        }
+      });
+    });
+  }
+
+  byId("editPredictors").addEventListener("click", () => {
+    renderPredictorsList();
+    predictorsDlg.showModal();
+    newPredictorName.focus();
+  });
+
+  addPredictorBtn.addEventListener("click", () => {
+    const name = newPredictorName.value.trim();
+    if (!name) { alert('Введите имя прогнозиста'); newPredictorName.focus(); return; }
+    if (state.predictors.includes(name)) { alert('Прогнозист с таким именем уже существует!'); newPredictorName.focus(); newPredictorName.select(); return; }
+    state.predictors.push(name);
+    renderPredictorsList();
+    newPredictorName.value = '';
+    newPredictorName.focus();
+    saveToFirebase();
+    refreshAll();
+  });
+
+  newPredictorName.addEventListener('keypress', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addPredictorBtn.click(); }
+  });
+
+  predictorsForm.addEventListener("submit", e => {
+    e.preventDefault();
+    predictorsDlg.close();
+    refreshAll();
+  });
+
+  byId("resetData").addEventListener("click", () => {
+    if (confirm("Сбросить все факты, прогнозы, расписание и команды?")) {
+      state.results = {};
+      state.schedule = {};
+      state.teams = [];
+      state.predictors = ["Иван", "Валентин"];
+      saveToFirebase();
+      refreshAll();
+    }
+  });
+
+  function setTheme(mode) {
+    state.theme = mode;
+    document.documentElement.setAttribute("data-theme", mode);
+    saveToFirebase();
+  }
+
+  themeToggle.addEventListener("click", () => {
+    setTheme(state.theme === "dark" ? "light" : "dark");
+  });
+
+  loadFromFirebase();
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (editor.open) editor.close();
+      if (scheduleDlg.open) scheduleDlg.close();
+      if (teamsDlg.open) teamsDlg.close();
+      if (predictorsDlg.open) predictorsDlg.close();
+    }
+  });
+
+  console.log('Таблица прогнозов подключена к Firebase!');
+})();
+</script>
+</body>
+</html>
