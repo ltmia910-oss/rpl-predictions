@@ -40,22 +40,25 @@
             border: 1px solid #1a2230;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
         }
-        .logo {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            display: block;
-        }
-        .logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
         h1 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #f0b429;
-            margin-bottom: 32px;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 36px;
+            letter-spacing: 1px;
+        }
+        .russian-flag {
+            background: linear-gradient(
+                to bottom,
+                #ffffff 0%,
+                #ffffff 33%,
+                #0039a6 33%,
+                #0039a6 66%,
+                #d52b1e 66%,
+                #d52b1e 100%
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         .btn {
             padding: 14px 40px;
@@ -147,17 +150,12 @@
         .btn-primary:hover {
             background: #dba020;
         }
-        /* Адаптация под телефон */
         @media (max-width: 480px) {
             .container {
                 padding: 32px 20px;
             }
-            .logo {
-                width: 90px;
-                height: 90px;
-            }
             h1 {
-                font-size: 22px;
+                font-size: 24px;
             }
             .btn {
                 font-size: 14px;
@@ -169,12 +167,8 @@
 <body>
 
     <div class="container">
-        <!-- ===== ЛОГОТИП РПЛ ===== -->
-        <div class="logo">
-            <img src="https://premierliga.ru/local/templates/main/images/logo.svg" alt="РПЛ" />
-        </div>
-
-        <h1>Таблица прогнозов РПЛ</h1>
+        <!-- ===== ЗАГОЛОВОК В ЦВЕТАХ ФЛАГА ===== -->
+        <h1 class="russian-flag">Таблица прогнозов РПЛ</h1>
 
         <!-- ===== НЕ АВТОРИЗОВАН ===== -->
         <div id="notLoggedIn">
