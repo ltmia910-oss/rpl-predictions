@@ -64,7 +64,6 @@
     overflow-x:hidden;
   }
 
-  /* ===== СТРАНИЦА ВХОДА ===== */
   .login-container {
     display: flex;
     flex-direction: column;
@@ -134,7 +133,6 @@
   }
   .hidden { display: none !important; }
 
-  /* ===== ШАПКА ===== */
   .app-header {
     background: var(--card);
     padding: 8px 12px;
@@ -185,7 +183,6 @@
     white-space: nowrap;
   }
 
-  /* ===== БУРГЕР-МЕНЮ ===== */
   .burger-btn {
     background: transparent;
     border: 1px solid var(--grid);
@@ -251,9 +248,7 @@
   .burger-menu .btn-danger:hover { border-color: var(--err); }
   .burger-menu .btn-logout-mobile { border-color: var(--err); color: var(--err); }
   .burger-menu .btn-logout-mobile:hover { background: var(--err); color: #fff; }
-  .burger-menu .theme-toggle-mobile { display: flex; align-items: center; gap: 10px; }
 
-  /* ===== ОСНОВНОЙ КОНТЕНТ ===== */
   .container {
     padding: 8px 8px 16px;
     max-width: 1400px;
@@ -301,7 +296,6 @@
   .sw.miss { background: color-mix(in oklab, var(--err), transparent 80%); }
   .sw.pending { background: rgba(127,139,153,.25); }
 
-  /* ===== ТАБЛИЦА ===== */
   .grid-wrap {
     overflow: auto;
     border: 1px solid var(--grid);
@@ -397,7 +391,6 @@
   .tour-highlight { background: var(--highlight) !important; outline: 2px solid color-mix(in oklab, var(--accent), transparent 60%); }
   .tour-dim { opacity: var(--dim); }
 
-  /* ===== РЕЙТИНГ ===== */
   .rating {
     margin-top: 12px;
     background: var(--card);
@@ -437,7 +430,6 @@
     border-bottom: none;
   }
 
-  /* ===== МОДАЛКИ ===== */
   dialog {
     border: none;
     border-radius: 16px;
@@ -522,7 +514,6 @@
   }
   .btn-primary:hover { background: #dba020; }
 
-  /* ===== ПОПОВЕР ===== */
   .popover {
     position: fixed;
     z-index: 30;
@@ -565,7 +556,6 @@
     color: var(--fg);
   }
 
-  /* ===== ПРОГНОЗИСТЫ ===== */
   .predictors-list {
     display: flex;
     flex-direction: column;
@@ -604,7 +594,6 @@
   }
   .empty-list { text-align: center; color: var(--muted); padding: 16px; font-style: italic; }
 
-  /* ===== АДАПТИВ ===== */
   @media (min-width: 769px) {
     .burger-btn { display: none; }
     .burger-menu { display: none !important; }
@@ -666,7 +655,6 @@
 <!-- ===== ОСНОВНОЕ ПРИЛОЖЕНИЕ ===== -->
 <div id="appPage" class="hidden">
 
-  <!-- ШАПКА С БУРГЕРОМ -->
   <header class="app-header">
     <div class="logo">⚽ Таблица <span class="rpl">РПЛ</span></div>
     <div class="user-info">
@@ -678,20 +666,17 @@
     </button>
   </header>
 
-  <!-- БУРГЕР-МЕНЮ -->
   <div class="burger-menu" id="burgerMenu">
     <button id="bEditSchedule">📅 Расписание</button>
     <button id="bEditTeams">🏷️ Команды</button>
     <button id="bEditPredictors">👥 Прогнозисты</button>
     <button id="bResetData" class="btn-danger">🔄 Сбросить всё</button>
-    <button class="theme-toggle-mobile" id="bThemeToggle">🌓 Тема</button>
-    <button class="btn-logout-mobile" id="bLogout">🚪 Выйти</button>
+    <button id="bThemeToggle">🌓 Тема</button>
+    <button id="bLogout" class="btn-logout-mobile">🚪 Выйти</button>
   </div>
 
-  <!-- ОСНОВНОЙ КОНТЕНТ -->
   <div class="container">
 
-    <!-- КОНТРОЛЫ (для десктопа) -->
     <div class="controls">
       <label>Тур:
         <select id="tourFilter">
@@ -727,7 +712,6 @@
     </section>
   </div>
 
-  <!-- ===== МОДАЛКИ ===== -->
   <div id="popover" class="popover">
     <button id="actFact">📊 Внести результат</button>
     <button id="actPred">📝 Дать прогноз</button>
@@ -884,9 +868,7 @@ loginBtn.addEventListener('click', () => {
     .catch(err => alert('Ошибка входа: ' + err.message));
 });
 
-// Выход
 logoutBtn.addEventListener('click', () => { auth.signOut(); closeBurger(); });
-document.getElementById('bLogout').addEventListener('click', () => { auth.signOut(); closeBurger(); });
 
 // ================================================================
 // БУРГЕР
@@ -901,11 +883,38 @@ function closeBurger() {
 }
 burgerBtn.addEventListener('click', toggleBurger);
 
-// Закрытие бургера при клике вне его
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.app-header') && !e.target.closest('.burger-menu')) {
     closeBurger();
   }
+});
+
+// ================================================================
+// БУРГЕР-КНОПКИ (исправлено: все ID существуют)
+// ================================================================
+document.getElementById('bEditSchedule').addEventListener('click', () => {
+  closeBurger();
+  document.getElementById('editSchedule').click();
+});
+document.getElementById('bEditTeams').addEventListener('click', () => {
+  closeBurger();
+  document.getElementById('editTeams').click();
+});
+document.getElementById('bEditPredictors').addEventListener('click', () => {
+  closeBurger();
+  document.getElementById('editPredictors').click();
+});
+document.getElementById('bResetData').addEventListener('click', () => {
+  closeBurger();
+  document.getElementById('resetData').click();
+});
+document.getElementById('bThemeToggle').addEventListener('click', () => {
+  closeBurger();
+  document.getElementById('themeToggle').click();
+});
+document.getElementById('bLogout').addEventListener('click', () => {
+  closeBurger();
+  auth.signOut();
 });
 
 // ================================================================
@@ -952,28 +961,6 @@ document.addEventListener('click', (e) => {
   const factBlock = byId("factBlock");
   const predBlock = byId("predBlock");
   let currentMatch = null;
-
-  // Бургер-кнопки-дубли
-  document.getElementById('bEditSchedule').addEventListener('click', () => {
-    closeBurger();
-    byId('editSchedule').click();
-  });
-  document.getElementById('bEditTeams').addEventListener('click', () => {
-    closeBurger();
-    byId('editTeams').click();
-  });
-  document.getElementById('bEditPredictors').addEventListener('click', () => {
-    closeBurger();
-    byId('editPredictors').click();
-  });
-  document.getElementById('bResetData').addEventListener('click', () => {
-    closeBurger();
-    byId('resetData').click();
-  });
-  document.getElementById('bThemeToggle').addEventListener('click', () => {
-    closeBurger();
-    byId('themeToggle').click();
-  });
 
   // ==============================================================
   // УТИЛИТЫ
@@ -1079,7 +1066,6 @@ document.addEventListener('click', (e) => {
 
           const fact = document.createElement("div");
           fact.className = "fact " + (!data?.actual ? "empty" : "");
-          // ===== ИЗМЕНЕНИЕ 1: "нет факта" → "—" =====
           fact.textContent = data?.actual ? formatScore(data.actual) : "—";
           td.appendChild(fact);
 
@@ -1546,7 +1532,7 @@ document.addEventListener('click', (e) => {
   });
 
   // ==============================================================
-  // СБРОС ВСЕХ ДАННЫХ (С ПОДТВЕРЖДЕНИЕМ)
+  // СБРОС ВСЕХ ДАННЫХ
   // ==============================================================
   byId("resetData").addEventListener("click", () => {
     if (confirm("⚠️ Сбросить все факты, прогнозы, расписание и команды?\n\nЭто действие необратимо!")) {
