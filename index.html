@@ -328,6 +328,145 @@
     margin-top: 12px;
   }
   .empty-list { text-align: center; color: var(--muted); padding: 16px; font-style: italic; }
+
+  /* ============================================================
+     МОБИЛЬНАЯ ВЕРСИЯ — СПИСОК МАТЧЕЙ
+     ============================================================ */
+  .mobile-view {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 0;
+  }
+  .mobile-view .tour-selector {
+    margin-bottom: 8px;
+  }
+  .mobile-view .tour-selector select {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    background: var(--card);
+    color: var(--fg);
+    border: 1px solid var(--grid);
+    border-radius: 12px;
+    min-height: 48px;
+  }
+  .mobile-match-card {
+    background: var(--card);
+    border: 1px solid var(--grid);
+    border-radius: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mobile-match-card:active {
+    transform: scale(0.98);
+    background: color-mix(in oklab, var(--card), var(--accent) 10%);
+  }
+  .mobile-match-card .teams {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .mobile-match-card .teams .home { color: var(--fg); }
+  .mobile-match-card .teams .away { color: var(--fg); }
+  .mobile-match-card .teams .vs { color: var(--muted); margin: 0 6px; }
+  .mobile-match-card .result {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .mobile-match-card .result .empty {
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 14px;
+  }
+  .mobile-match-card .predictions {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .mobile-match-card .predictions .pred-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--grid);
+    background: color-mix(in oklab, var(--card), black 8%);
+    color: var(--muted);
+  }
+  .mobile-match-card .predictions .pred-badge.ok {
+    border-color: color-mix(in oklab, var(--ok), transparent 65%);
+    color: color-mix(in oklab, var(--ok), white 60%);
+  }
+  .mobile-match-card .predictions .pred-badge.outcome {
+    border-color: color-mix(in oklab, var(--warn), transparent 65%);
+    color: color-mix(in oklab, var(--warn), white 60%);
+  }
+  .mobile-match-card .predictions .pred-badge.miss {
+    border-color: color-mix(in oklab, var(--err), transparent 65%);
+    color: color-mix(in oklab, var(--err), white 60%);
+  }
+  .mobile-match-card .predictions .pred-badge.pending {
+    border-color: rgba(127,139,153,.35);
+    color: #c7ced6;
+  }
+
+  @media (max-width: 768px) {
+    .desktop-view {
+      display: none !important;
+    }
+    .mobile-view {
+      display: flex !important;
+    }
+    .controls {
+      display: none !important;
+    }
+    header h1 {
+      font-size: 14px;
+    }
+    header .user-info {
+      font-size: 12px;
+    }
+    .rating {
+      margin-top: 12px;
+    }
+    .rating h2 {
+      font-size: 14px;
+    }
+    .rating table {
+      font-size: 12px;
+    }
+    .rating th, .rating td {
+      padding: 4px 6px;
+    }
+    dialog {
+      max-width: 95% !important;
+      width: 95% !important;
+      margin: 8px auto !important;
+    }
+    dialog input, dialog select {
+      font-size: 16px !important;
+      padding: 12px !important;
+      min-height: 48px !important;
+    }
+    .modal-ft button {
+      min-height: 48px !important;
+      font-size: 15px !important;
+    }
+    .row, .row3 {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .mobile-view {
+      display: none !important;
+    }
+    .desktop-view {
+      display: block !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -360,29 +499,43 @@
   </header>
 
   <div class="container">
-    <div class="controls">
-      <label>Тур:
-        <select id="tourFilter">
-          <option value="">Все туры</option>
+    <!-- ДЕСКТОПНАЯ ВЕРСИЯ -->
+    <div class="desktop-view">
+      <div class="controls">
+        <label>Тур:
+          <select id="tourFilter">
+            <option value="">Все туры</option>
+          </select>
+        </label>
+        <button id="editSchedule" class="mutebtn">Редактировать расписание</button>
+        <button id="editTeams" class="mutebtn">Редактировать команды</button>
+        <button id="editPredictors" class="mutebtn">Управление прогнозистами</button>
+        <span class="legend">
+          <span class="sw ok"></span>точный счёт (2)
+          <span class="sw outcome"></span>верный исход (1)
+          <span class="sw miss"></span>мимо (0)
+          <span class="sw pending"></span>прогноз без факта
+        </span>
+        <span style="flex:1"></span>
+        <button id="resetData" class="mutebtn danger">Сбросить всё</button>
+      </div>
+
+      <div class="grid-wrap">
+        <table id="matrix"></table>
+      </div>
+    </div>
+
+    <!-- МОБИЛЬНАЯ ВЕРСИЯ -->
+    <div class="mobile-view">
+      <div class="tour-selector">
+        <select id="mobileTourFilter">
+          <option value="">Выберите тур</option>
         </select>
-      </label>
-      <button id="editSchedule" class="mutebtn">Редактировать расписание</button>
-      <button id="editTeams" class="mutebtn">Редактировать команды</button>
-      <button id="editPredictors" class="mutebtn">Управление прогнозистами</button>
-      <span class="legend">
-        <span class="sw ok"></span>точный счёт (2)
-        <span class="sw outcome"></span>верный исход (1)
-        <span class="sw miss"></span>мимо (0)
-        <span class="sw pending"></span>прогноз без факта
-      </span>
-      <span style="flex:1"></span>
-      <button id="resetData" class="mutebtn danger">Сбросить всё</button>
+      </div>
+      <div id="mobileMatchesList"></div>
     </div>
 
-    <div class="grid-wrap">
-      <table id="matrix"></table>
-    </div>
-
+    <!-- РЕЙТИНГ (общий для обеих версий) -->
     <section class="rating">
       <h2>Рейтинг прогнозистов</h2>
       <table id="rating">
@@ -572,6 +725,8 @@ logoutBtn.addEventListener('click', () => auth.signOut());
   const actFact = byId("actFact");
   const actPred = byId("actPred");
   const tourFilter = byId("tourFilter");
+  const mobileTourFilter = byId("mobileTourFilter");
+  const mobileMatchesList = byId("mobileMatchesList");
   const scheduleDlg = byId("scheduleDlg");
   const scheduleText = byId("scheduleText");
   const scheduleForm = byId("scheduleForm");
@@ -622,14 +777,20 @@ logoutBtn.addEventListener('click', () => auth.signOut());
     const vals = Object.values(state.schedule).map(x => x.tour).filter(x => typeof x === "number");
     return vals.length ? Math.max(...vals) : 30;
   }
-  function rebuildTourFilter() {
+
+  function rebuildTourFilters() {
     const cur = tourFilter.value;
+    const mobileCur = mobileTourFilter.value;
     let html = '<option value="">Все туры</option>';
+    let mobileHtml = '<option value="">Выберите тур</option>';
     for (let i = 1; i <= maxTour(); i++) {
       html += `<option value="${i}">${i}</option>`;
+      mobileHtml += `<option value="${i}">${i}</option>`;
     }
     tourFilter.innerHTML = html;
     tourFilter.value = cur || "";
+    mobileTourFilter.innerHTML = mobileHtml;
+    mobileTourFilter.value = mobileCur || "";
   }
 
   function positionTooltip(x, y) {
@@ -729,6 +890,83 @@ logoutBtn.addEventListener('click', () => auth.signOut());
     matrixEl.appendChild(tbody);
   }
 
+  // ==============================================================
+  // МОБИЛЬНЫЙ СПИСОК МАТЧЕЙ
+  // ==============================================================
+  function renderMobileMatches() {
+    const selectedTour = mobileTourFilter.value ? Number(mobileTourFilter.value) : null;
+    if (!selectedTour) {
+      mobileMatchesList.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px;">Выберите тур</div>';
+      return;
+    }
+
+    // Собираем матчи выбранного тура
+    const matches = [];
+    Object.keys(state.schedule).forEach(key => {
+      const sched = state.schedule[key];
+      if (sched.tour === selectedTour) {
+        const [home, away] = key.split("|");
+        const data = state.results[key] || { predictions: {} };
+        matches.push({ key, home, away, data, sched });
+      }
+    });
+
+    if (matches.length === 0) {
+      mobileMatchesList.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px;">В этом туре нет матчей</div>';
+      return;
+    }
+
+    // Сортируем матчи (по дате, если есть)
+    matches.sort((a, b) => {
+      const da = a.sched.date || "99.99";
+      const db = b.sched.date || "99.99";
+      return da.localeCompare(db);
+    });
+
+    let html = '';
+    matches.forEach(m => {
+      const actual = m.data.actual;
+      const resultText = actual ? formatScore(actual) : '<span class="empty">—</span>';
+      const preds = m.data.predictions || {};
+
+      let predHtml = '';
+      state.predictors.forEach(name => {
+        const p = preds[name];
+        if (!p) return;
+        let cls = "pending";
+        if (actual) {
+          const sc = scoreFor(p, actual);
+          cls = sc === 2 ? "ok" : sc === 1 ? "outcome" : "miss";
+        }
+        predHtml += `<span class="pred-badge ${cls}">${name}: ${p.h}:${p.a}</span>`;
+      });
+
+      html += `
+        <div class="mobile-match-card" data-key="${m.key}" data-home="${m.home}" data-away="${m.away}">
+          <div class="teams">
+            <span class="home">${m.home}</span>
+            <span class="vs">—</span>
+            <span class="away">${m.away}</span>
+          </div>
+          <div class="result">${resultText}</div>
+          <div class="predictions">${predHtml || '<span style="color:var(--muted);font-size:12px;">Нет прогнозов</span>'}</div>
+        </div>
+      `;
+    });
+
+    mobileMatchesList.innerHTML = html;
+
+    // Добавляем обработчики кликов на карточки
+    mobileMatchesList.querySelectorAll('.mobile-match-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const key = card.dataset.key;
+        const home = card.dataset.home;
+        const away = card.dataset.away;
+        openPopover(0, 0, { home, away, key });
+      });
+    });
+  }
+
   function renderRating() {
     const stats = {};
     state.predictors.forEach(n => stats[n] = { exact: 0, outcome: 0, miss: 0, points: 0 });
@@ -766,8 +1004,9 @@ logoutBtn.addEventListener('click', () => auth.signOut());
   }
 
   function refreshAll() {
-    rebuildTourFilter();
+    rebuildTourFilters();
     renderMatrix();
+    renderMobileMatches();
     renderRating();
     updatePredictorSelect();
   }
@@ -811,8 +1050,8 @@ logoutBtn.addEventListener('click', () => auth.signOut());
 
   function openPopover(x, y, match) {
     currentMatch = match;
-    popover.style.left = Math.min(x, window.innerWidth - 220) + "px";
-    popover.style.top = Math.min(y, window.innerHeight - 120) + "px";
+    popover.style.left = Math.min(x || 0, window.innerWidth - 220) + "px";
+    popover.style.top = Math.min(y || 0, window.innerHeight - 120) + "px";
     popover.style.display = "flex";
   }
 
@@ -832,7 +1071,7 @@ logoutBtn.addEventListener('click', () => auth.signOut());
 
   document.addEventListener("click", e => {
     if (popover.style.display === "flex" && !popover.contains(e.target)) {
-      if (!e.target.closest("td.cell")) closePopover();
+      if (!e.target.closest("td.cell") && !e.target.closest(".mobile-match-card")) closePopover();
     }
   });
 
@@ -992,6 +1231,7 @@ logoutBtn.addEventListener('click', () => auth.signOut());
   });
 
   tourFilter.addEventListener("change", () => renderMatrix());
+  mobileTourFilter.addEventListener("change", () => renderMobileMatches());
 
   function teamsToText() { return state.teams.join("\n"); }
 
