@@ -691,8 +691,12 @@ function showPage(user) {
 auth.onAuthStateChanged(user => showPage(user));
 
 loginBtn.addEventListener('click', () => {
-  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-    .catch(err => alert('Ошибка входа: ' + err.message));
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithRedirect(provider);
+});
+
+auth.getRedirectResult().catch(err => {
+  alert('Ошибка входа: ' + err.message);
 });
 
 logoutBtn.addEventListener('click', () => auth.signOut());
